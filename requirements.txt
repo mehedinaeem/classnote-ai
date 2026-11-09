@@ -1,0 +1,5 @@
+# Foundation only. Add audio and AI dependencies when those features are implemented.
+Django==5.2.19
+python-dotenv==1.2.4
+asgiref==3.13.0
+sqlparse==0.6.1
