@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{% if course %}Edit course{% else %}Create course{% endif %} · ClassNote AI{% endblock %}
+{% block content %}
+<div class="mx-auto" style="max-width: 760px">
+  <a href="{% url 'courses:list' %}">Back to courses</a>
+  <div class="card border-0 shadow-sm mt-3"><div class="card-body p-4 p-sm-5">
+    <h1 class="h3 fw-bold">{% if course %}Edit course{% else %}Create a course{% endif %}</h1>
+    <p class="text-secondary">Course code and name are required. All other details are optional.</p>
+    <form method="post">
+      {% csrf_token %}
+      {% include "accounts/form_fields.html" %}
+      <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-primary" type="submit">{% if course %}Save changes{% else %}Create course{% endif %}</button>
+        {% if course %}<a class="btn btn-outline-secondary" href="{% url 'courses:detail' course.pk %}">Cancel</a>{% else %}<a class="btn btn-outline-secondary" href="{% url 'courses:list' %}">Cancel</a>{% endif %}
+      </div>
+    </form>
+  </div></div>
+</div>
+{% endblock %}

@@ -1,0 +1,3 @@
+-r requirements-transcription.txt
+sentence-transformers==6.2.0
+faiss-cpu==1.15.1

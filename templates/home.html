@@ -1,10 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="hero mb-5">
-  <span class="badge text-bg-primary mb-3">Project foundation</span>
+  <span class="badge text-bg-primary mb-3">Your local-first study companion</span>
   <h1 class="display-4 fw-bold">From classroom lectures<br>to clearer notes.</h1>
   <p class="lead text-secondary mt-3">A local-first study companion for Bangla, English, and mixed Bangla-English lectures.</p>
-  <p>ClassNote AI is taking shape. Recording, uploads, transcription, notes, and lecture chat are planned for future releases.</p>
+  <p>ClassNote AI is taking shape. Course management, browser recording, and lecture uploads are available. Local transcription and structured academic notes are available. Ask AI answers lecture questions, and quizzes and flashcards help you revise.</p>
+  <div class="d-flex flex-wrap gap-2 mt-4">
+    {% if user.is_authenticated %}
+      <a class="btn btn-primary" href="{% url 'dashboard' %}">Go to dashboard</a>
+    {% else %}
+      <a class="btn btn-primary" href="{% url 'register' %}">Create account</a>
+      <a class="btn btn-outline-primary" href="{% url 'login' %}">Login</a>
+    {% endif %}
+  </div>
 </section>
 <section aria-labelledby="workflow-title">
   <h2 id="workflow-title" class="h4 mb-4">The planned workflow</h2>

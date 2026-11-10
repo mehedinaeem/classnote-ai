@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Local LLM status · ClassNote AI{% endblock %}
+{% block content %}
+<div class="mx-auto" style="max-width: 720px">
+  <p class="text-primary fw-semibold small text-uppercase">Local services</p>
+  <h1 class="h2 fw-bold mb-4">Local LLM status</h1>
+  <section class="card border-0 shadow-sm" aria-label="Ollama diagnostic">
+    <div class="card-body p-4 p-sm-5">
+      <dl class="row">
+        <dt class="col-sm-4">Ollama</dt>
+        <dd class="col-sm-8"><span class="badge {% if health.connected %}text-bg-success{% else %}text-bg-secondary{% endif %}">{% if health.connected %}Connected{% else %}Not Connected{% endif %}</span></dd>
+        <dt class="col-sm-4">Model</dt>
+        <dd class="col-sm-8 text-break">{{ health.model }}</dd>
+        <dt class="col-sm-4">Model installed</dt>
+        <dd class="col-sm-8">{% if health.connected %}{% if health.model_available %}Yes{% else %}No{% endif %}{% else %}Not checked{% endif %}</dd>
+      </dl>
+      <p class="text-secondary" role="status">{{ health.message }}</p>
+      <a class="btn btn-outline-primary" href="{% url 'notes:ollama_diagnostic' %}">Check again</a>
+      <p class="small text-secondary mt-4 mb-0">This checks connectivity and installed models only. This diagnostic does not generate notes.</p>
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ course.course_code }} · ClassNote AI{% endblock %}
+{% block content %}
+<a href="{% url 'courses:list' %}">Back to courses</a>
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mt-3 mb-4">
+  <div class="text-break"><p class="text-primary fw-semibold mb-1">{{ course.course_code }}</p><h1 class="h2 fw-bold">{{ course.course_name }}</h1></div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-primary" href="{% url 'courses:edit' course.pk %}">Edit course</a>
+    <a class="btn btn-outline-danger" href="{% url 'courses:delete' course.pk %}">Delete course</a>
+  </div>
+</div>
+<section class="card border-0 shadow-sm mb-4" aria-labelledby="details-title"><div class="card-body p-4">
+  <h2 class="h5 mb-3" id="details-title">Course details</h2>
+  <dl class="row mb-0">
+    <dt class="col-sm-3">Teacher</dt><dd class="col-sm-9">{{ course.teacher_name|default:"Not provided" }}</dd>
+    <dt class="col-sm-3">Department</dt><dd class="col-sm-9">{{ course.department|default:"Not provided" }}</dd>
+    <dt class="col-sm-3">Semester</dt><dd class="col-sm-9">{{ course.semester|default:"Not provided" }}</dd>
+  </dl>
+  {% if course.description %}<h3 class="h6 mt-3">Description</h3><div class="text-break">{{ course.description|linebreaks }}</div>{% endif %}
+</div></section>
+<section class="card border-0 shadow-sm" aria-labelledby="lectures-title"><div class="card-body p-4">
+  <h2 class="h5" id="lectures-title">Lectures</h2>
+  {% for lecture in lectures %}
+  <p class="border-bottom py-2"><a href="{% url 'lectures:detail' lecture.pk %}">{{ lecture.title }}</a> · {{ lecture.lecture_date }}</p>
+  {% empty %}
+  <div class="empty-state text-center rounded-3 p-5 mt-3">
+    <h3 class="h5">No lectures yet</h3><p class="text-secondary mb-0">Lectures for this course will appear here. Upload audio from the New Lecture page.</p>
+  </div>
+  {% endfor %}
+  <a class="btn btn-outline-primary mt-3" href="{% url 'lectures:create' %}">Upload Lecture</a>
+</div></section>
+{% endblock %}

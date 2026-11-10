@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Upload lecture · ClassNote AI{% endblock %}
+{% block content %}
+<div class="mx-auto" style="max-width:760px">
+  <a href="{% url 'lectures:list' %}">Back to lectures</a>
+  <div class="card border-0 shadow-sm mt-3"><div class="card-body p-4 p-sm-5">
+    <h1 class="h3 fw-bold">Upload a lecture</h1>
+    <p class="text-secondary">Choose a course and upload audio up to {{ max_upload_mb }} MB. You can process the lecture locally after uploading.</p>
+    {% if has_courses %}
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {% include "accounts/form_fields.html" %}
+      <button class="btn btn-primary" type="submit">Upload Lecture</button>
+      <a class="btn btn-outline-secondary" href="{% url 'lectures:list' %}">Cancel</a>
+    </form>
+    {% else %}
+    <div class="alert alert-info">Create a course before uploading your first lecture.</div>
+    <a class="btn btn-primary" href="{% url 'courses:create' %}">Create course</a>
+    {% endif %}
+  </div></div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static transcript_tags l10n %}
+{% block title %}{{ lecture.title }} · ClassNote AI{% endblock %}
+{% block content %}
+<div class="lecture-detail mx-auto">
+  <a class="small text-decoration-none" href="{% url 'lectures:list' %}">← All lectures</a>
+  <header class="py-4">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+      <a class="badge text-bg-primary text-decoration-none" href="{% url 'courses:detail' lecture.course_id %}">{{ lecture.course.course_code }}</a>
+      <span class="badge text-bg-light border">{{ lecture.get_status_display }}</span>
+      <span class="small text-secondary">{{ lecture.lecture_date }}</span>
+    </div>
+    <h1 class="h5 text-secondary fw-normal text-break">{{ lecture.course.course_name }}</h1>
+    <h2 class="display-6 fw-bold text-break mb-0">{{ lecture.title }}</h2>
+    {% if lecture.description %}<div class="text-secondary mt-3 text-break">{{ lecture.description|linebreaks }}</div>{% endif %}
+  </header>
+
+  <section class="lecture-player sticky-top bg-white border rounded-4 shadow-sm p-3 p-sm-4" aria-labelledby="audio-title">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+      <h2 class="h6 fw-semibold mb-0" id="audio-title">Lecture audio</h2>
+      {% if lecture.audio_file %}<span class="small text-secondary audio-filename text-truncate">{{ lecture.original_filename }}</span>{% endif %}
+    </div>
+    {% if lecture.audio_file %}
+      <audio id="lecture-audio" class="w-100 d-block" controls preload="metadata" aria-labelledby="audio-title" src="{% url 'lectures:audio' lecture.pk %}">Your browser does not support audio playback.</audio>
+    {% else %}<p class="small text-secondary mb-0">No audio uploaded.</p>{% endif %}
+  </section>
+
+  <section class="card rounded-4 p-3 mt-3" data-background-job data-active="{% if active_job %}true{% else %}false{% endif %}" data-status-url="{% url 'lectures:status' lecture.pk %}" aria-label="Lecture processing progress">
+    <p class="small mb-2" data-job-message role="status">{{ lecture.processing_message|default:lecture.get_status_display }}</p>
+    <div class="progress mb-3" style="height: 1.3rem"><div class="progress-bar" role="progressbar" style="width: {{ lecture.progress }}%" aria-valuenow="{{ lecture.progress }}" aria-valuemin="0" aria-valuemax="100">{{ lecture.progress }}%</div></div>
+    <div class="row g-2 small">
+      <div class="col-6 col-md-3" data-milestone="10" data-starts="0"><span>{% if lecture.progress >= 10 %}✓{% else %}○{% endif %}</span> Audio uploaded</div>
+      <div class="col-6 col-md-3" data-milestone="40" data-starts="15"><span>{% if lecture.progress >= 40 %}✓{% else %}○{% endif %}</span> Audio processed</div>
+      <div class="col-6 col-md-3" data-milestone="80" data-starts="55"><span>{% if lecture.progress >= 80 %}✓{% else %}○{% endif %}</span> Creating transcript</div>
+      <div class="col-6 col-md-3" data-milestone="100" data-starts="80"><span>{% if lecture.progress >= 100 %}✓{% else %}○{% endif %}</span> Generating notes</div>
+    </div>
+  </section>
+  {% if study_job %}<div class="alert alert-info mt-3" data-background-job data-active="true" data-status-url="{% url 'lectures:job_status' lecture.pk study_job.pk %}"><span data-job-message role="status">Quiz and flashcards queued or generating…</span></div>{% endif %}
+  {{ pending_chat_jobs|json_script:"pending-chat-jobs" }}
+  {% if lecture.processing_error %}<div class="alert alert-danger mt-3" role="alert"><strong>Processing failed.</strong> {{ lecture.processing_error }}</div>{% endif %}
+  <details class="mt-3 mb-4 lecture-processing">
+    <summary class="small text-secondary">Transcription and processing</summary>
+    <form id="process-lecture-form" method="post" action="{% url 'lectures:process' lecture.pk %}" class="mt-3">
+      {% csrf_token %}
+      <button class="btn btn-outline-primary btn-sm" type="submit" {% if is_processing or not lecture.audio_file %}disabled{% endif %}>Process lecture</button>
+    </form>
+    <p id="process-help" class="small text-secondary mt-2 mb-0">{% if is_processing %}Processing in the background. Progress updates automatically.{% else %}Process audio, transcribe and generate notes locally in the background. You can leave this page. Previous results are replaced only after successful generation.{% endif %}</p>
+  </details>
+
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white lecture-tab-header">
+      <nav class="nav nav-tabs nav-fill card-header-tabs lecture-tabs" aria-label="Lecture content" id="lecture-tabs">
+        <a class="nav-link" id="notes-tab" href="#notes">Notes</a>
+        <a class="nav-link" id="transcript-tab" href="#transcript">Transcript</a>
+        <a class="nav-link" id="ask-ai-tab" href="#ask-ai">Ask AI</a>
+        <a class="nav-link" id="quiz-tab" href="#quiz">Quiz</a>
+      </nav>
+    </div>
+    <div class="card-body p-3 p-sm-4 p-lg-5">
+      <section id="notes" aria-labelledby="notes-tab">
+        {% include "notes/note_sections.html" %}
+      </section>
+      <section id="transcript" aria-labelledby="transcript-tab">
+        <h2 class="h4 fw-bold">Transcript</h2>
+        <p class="small text-secondary">Select a timestamp to listen from that moment.</p>
+        {% if transcript %}
+          {% if lecture.status == "failed" %}<p class="text-secondary">Showing the previous successful transcript.</p>{% endif %}
+          {% if transcript.detected_language %}<p class="small text-secondary">Primary detected language: {{ transcript.detected_language }}</p>{% endif %}
+          {% for segment in segments %}
+            <article class="transcript-segment border-bottom py-4">
+              <button class="btn btn-outline-primary btn-sm transcript-seek" type="button" data-seek="{{ segment.start_time|unlocalize }}" aria-label="Play from {{ segment.start_time|timestamp }}">[{{ segment.start_time|timestamp }} - {{ segment.end_time|timestamp }}]</button>
+              <p class="mt-3 mb-0 text-break lecture-prose">{{ segment.text }}</p>
+            </article>
+          {% empty %}<p class="text-secondary">No speech was detected in this lecture.</p>{% endfor %}
+        {% else %}<p class="text-secondary mb-0">Process this lecture to create its transcript.</p>{% endif %}
+      </section>
+      <section id="ask-ai" aria-labelledby="ask-ai-tab">
+        {% include "ai_chat/lecture_chat.html" %}
+      </section>
+      <section id="quiz" aria-labelledby="quiz-tab">
+        {% include "notes/study_materials.html" %}
+      </section>
+      <p id="seek-status" class="small text-secondary mt-3" role="status"></p>
+    </div>
+  </div>
+</div>
+<script src="{% static 'js/transcript.js' %}" defer></script>
+<script src="{% static 'js/lecture-jobs.js' %}" defer></script>
+<script src="{% static 'js/lecture-tabs.js' %}" defer></script>
+<script src="{% static 'js/lecture-chat.js' %}" defer></script>
+<script src="{% static 'js/study-materials.js' %}" defer></script>
+{% endblock %}

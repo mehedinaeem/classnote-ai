@@ -1,0 +1,13 @@
+{% load transcript_tags l10n %}
+<article class="{% if item.final_category == 'exam_important' %}exam-important-card{% else %}border{% endif %} rounded-4 p-3 p-sm-4 mb-3">
+  <p class="small fw-semibold mb-2">{% if item.final_category == 'exam_important' %}⭐ {% endif %}{{ item.get_final_category_display }}</p>
+  <h4 class="h6 fw-bold text-break">{{ item.title }}</h4>
+  <blockquote class="text-break mb-3"><strong>Reason — teacher said:</strong> “{{ item.evidence_quote }}”</blockquote>
+  <p class="small text-secondary text-break">{{ item.classification_reason }}</p>
+  <p class="small text-secondary text-break">{{ item.decision_reason }}</p>
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    <button class="btn btn-outline-primary btn-sm transcript-seek" type="button" data-seek="{{ item.transcript_segment.start_time|unlocalize }}">Play from {{ item.transcript_segment.start_time|timestamp }}</button>
+    <span class="badge text-bg-light border">Model confidence: {{ item.confidence_percent }}%</span>
+  </div>
+  <p class="small text-secondary mt-3 mb-0">Keyword score: {{ item.keyword_score }} · Cues: {% for keyword in item.matched_keywords %}{{ keyword.phrase }} (+{{ keyword.weight }}){% if not forloop.last %}, {% endif %}{% endfor %}</p>
+</article>

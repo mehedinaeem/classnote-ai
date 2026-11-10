@@ -1,0 +1,8 @@
+<section class="note-section">
+  <h3 class="note-section-title">{{ heading }}</h3>
+  {% if entries %}
+    <ul class="note-list mb-0">
+      {% for entry in entries %}<li class="text-break">{% if is_formula %}<div class="formula-text rounded-3 p-3">{{ entry }}</div>{% else %}{{ entry|linebreaksbr }}{% endif %}</li>{% endfor %}
+    </ul>
+  {% else %}<p class="text-secondary mb-0">Not provided in the transcript.</p>{% endif %}
+</section>

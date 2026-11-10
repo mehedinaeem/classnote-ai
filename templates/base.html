@@ -12,11 +12,35 @@
 <body class="bg-light">
   <a class="visually-hidden-focusable" href="#main">Skip to content</a>
   <header class="bg-white border-bottom">
-    <nav class="container py-3" aria-label="Main navigation">
-      <a class="navbar-brand fw-bold" href="{% url 'home' %}">ClassNote <span class="text-primary">AI</span></a>
+    <nav class="container py-3 d-flex flex-wrap align-items-center gap-3" aria-label="Main navigation">
+      <a class="navbar-brand fw-bold me-auto" href="{% url 'home' %}">ClassNote <span class="text-primary">AI</span></a>
+      {% if user.is_authenticated %}
+        <div class="d-flex flex-wrap align-items-center gap-3">
+          <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}text-primary fw-semibold{% endif %}"
+             {% if request.resolver_match.url_name == 'dashboard' %}aria-current="page"{% endif %}
+             href="{% url 'dashboard' %}">Dashboard</a>
+          <a class="nav-link {% if request.resolver_match.namespace == 'courses' %}text-primary fw-semibold{% endif %}" href="{% url 'courses:list' %}">Courses</a>
+          <a class="nav-link" href="{% url 'lectures:list' %}">Lectures</a>
+          <a class="nav-link" href="{% url 'lectures:record' %}">New Lecture</a>
+          <a class="nav-link" href="{% url 'notes:ollama_diagnostic' %}">Local LLM</a>
+          <span class="username text-secondary">{{ user.username }}</span>
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-secondary btn-sm" type="submit">Logout</button>
+          </form>
+        </div>
+      {% else %}
+        <a class="nav-link" href="{% url 'login' %}">Login</a>
+        <a class="btn btn-primary btn-sm" href="{% url 'register' %}">Create account</a>
+      {% endif %}
     </nav>
   </header>
-  <main id="main" class="container py-5">{% block content %}{% endblock %}</main>
+  <main id="main" class="container py-5">
+    {% for message in messages %}
+      <div class="alert alert-info" role="status">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
   <footer class="container pb-4 text-secondary small">Built for learning. Designed for local processing.</footer>
 </body>
 </html>

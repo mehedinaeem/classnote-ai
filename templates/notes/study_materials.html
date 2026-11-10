@@ -1,0 +1,69 @@
+<h2 class="h4 fw-bold">Quiz &amp; flashcards</h2>
+<p class="text-secondary">Practice using this lecture’s transcript and notes. Check explanations against the source audio.</p>
+{% if study_materials.error %}<div class="alert alert-danger" role="alert">{{ study_materials.error }}{% if quiz_data or flashcard_data %} Previous material is still available below.{% endif %}</div>{% endif %}
+{% if study_stale %}<div class="alert alert-warning">The transcript or notes have changed. Regenerate to update this practice material.</div>{% endif %}
+{% if study_materials.status == "generating" %}<div class="alert alert-info">Quiz and flashcards are being generated locally. Progress updates automatically.</div>{% endif %}
+{% if segments or note %}
+<form id="study-generation-form" method="post" action="{% url 'notes:generate_study' lecture.pk %}" class="rounded-3 border p-3 mb-4">
+  {% csrf_token %}
+  <div class="row g-3 align-items-end">
+    {% for field in study_form %}
+      <div class="col-6 col-md-3"><label class="form-label small fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</div>
+    {% endfor %}
+    <div class="col-12 col-md-6"><button class="btn btn-primary w-100" type="submit" {% if study_job or study_materials.status == "generating" or is_processing %}disabled{% endif %}>{% if quiz_data or flashcard_data %}Regenerate quiz &amp; flashcards{% else %}Generate quiz &amp; flashcards{% endif %}</button></div>
+  </div>
+  <p id="study-generation-status" class="small text-secondary mt-3 mb-0" role="status">Local generation may take several minutes. You can leave this page; progress is saved.</p>
+</form>
+{% else %}
+<div class="alert alert-info">Transcribe this lecture before generating a quiz and flashcards.</div>
+{% endif %}
+
+{% if quiz_data %}
+<section class="mb-5" aria-labelledby="practice-title">
+  <h3 class="h5 fw-bold" id="practice-title">Practice quiz</h3>
+  {{ quiz_data|json_script:"quiz-data" }}
+  <div id="quiz-runner">
+    <p id="quiz-progress" class="small text-primary fw-semibold mt-3"></p>
+    <fieldset id="quiz-question-area" class="border-0 p-0">
+      <legend id="quiz-question" class="h5 text-break"></legend>
+      <div id="quiz-options" class="d-grid gap-2 mt-3"></div>
+    </fieldset>
+    <div id="quiz-feedback" class="alert mt-3" role="status" hidden></div>
+    <div id="quiz-explanation-area" class="rounded-3 bg-light p-3 mt-3" hidden>
+      <h4 class="h6">Explanation</h4><p id="quiz-explanation" class="text-break"></p>
+      <blockquote id="quiz-evidence" class="small text-secondary text-break"></blockquote>
+      <button id="quiz-source" type="button" class="btn btn-outline-primary btn-sm transcript-seek" hidden>Play source</button>
+    </div>
+    <div class="d-flex flex-wrap gap-2 mt-4">
+      <button id="quiz-check" type="button" class="btn btn-primary" disabled>Check answer</button>
+      <button id="quiz-next" type="button" class="btn btn-outline-primary" disabled>Next question</button>
+    </div>
+  </div>
+  <div id="quiz-results" class="empty-state rounded-4 p-4 mt-3" hidden>
+    <h4 class="h5">Quiz complete</h4>
+    <p id="quiz-score" class="h3 fw-bold" role="status"></p>
+    <button id="quiz-restart" type="button" class="btn btn-primary mt-2">Try again</button>
+  </div>
+</section>
+{% endif %}
+
+{% if flashcard_data %}
+<section aria-labelledby="flashcard-title">
+  <h3 class="h5 fw-bold" id="flashcard-title">Flashcards</h3>
+  <p class="small text-secondary">Select the card to flip between question and answer.</p>
+  {{ flashcard_data|json_script:"flashcard-data" }}
+  <p id="flashcard-progress" class="small fw-semibold text-primary" role="status"></p>
+  <button id="flashcard-flip" class="flashcard-button" type="button" aria-pressed="false" aria-label="Show flashcard answer">
+    <span class="flashcard-inner">
+      <span id="flashcard-front" class="flashcard-face flashcard-front text-break"></span>
+      <span id="flashcard-back" class="flashcard-face flashcard-back text-break" aria-hidden="true"></span>
+    </span>
+  </button>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+    <button id="flashcard-previous" class="btn btn-outline-primary" type="button">Previous card</button>
+    <button id="flashcard-source" class="btn btn-outline-secondary btn-sm transcript-seek" type="button" hidden>Play source</button>
+    <button id="flashcard-next" class="btn btn-outline-primary" type="button">Next card</button>
+  </div>
+</section>
+{% endif %}
+{% if quiz_data or flashcard_data %}<noscript><div class="alert alert-info mt-3">Enable JavaScript for interactive questions and flashcard flipping.</div></noscript>{% endif %}

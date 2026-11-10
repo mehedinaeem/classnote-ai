@@ -1,5 +1,9 @@
-# Foundation only. Add audio and AI dependencies when those features are implemented.
+# Core web dependencies. Local Silero inference dependencies: requirements-vad.txt.
 Django==5.2.19
 python-dotenv==1.2.4
 asgiref==3.13.0
 sqlparse==0.6.1
+
+# Free PDF rendering with Pango/HarfBuzz Unicode shaping.
+weasyprint==68.1
+celery[redis]==5.6.3

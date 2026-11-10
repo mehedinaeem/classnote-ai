@@ -138,11 +138,89 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-# Reserved configuration; no model is loaded or called.
-OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://127.0.0.1:11434')
+# Local Ollama gateway. No network calls occur at startup.
+OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
 OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'qwen3:4b')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Student authentication routes.
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "dashboard"
+LOGOUT_REDIRECT_URL = "home"
+
+# Files larger than 2.5 MB spool to temporary disk via Django's upload handlers.
+MAX_AUDIO_UPLOAD_BYTES = int(os.getenv("MAX_AUDIO_UPLOAD_BYTES", str(100 * 1024 * 1024)))
+FFPROBE_BINARY = os.getenv("FFPROBE_BINARY", "ffprobe")
+
+FFMPEG_BINARY = os.getenv("FFMPEG_BINARY", "ffmpeg")
+AUDIO_PROCESS_TIMEOUT_SECONDS = int(os.getenv("AUDIO_PROCESS_TIMEOUT_SECONDS", "600"))
+AUDIO_PROBE_TIMEOUT_SECONDS = int(os.getenv("AUDIO_PROBE_TIMEOUT_SECONDS", "20"))
+
+# Local Silero voice activity detection (milliseconds for duration controls).
+VAD_THRESHOLD = float(os.getenv("VAD_THRESHOLD", "0.5"))
+VAD_MIN_SPEECH_MS = int(os.getenv("VAD_MIN_SPEECH_MS", "250"))
+VAD_MIN_SILENCE_MS = int(os.getenv("VAD_MIN_SILENCE_MS", "500"))
+VAD_SPEECH_PAD_MS = int(os.getenv("VAD_SPEECH_PAD_MS", "30"))
+
+# Local multilingual speech recognition; model weights must be provisioned first.
+WHISPER_MODEL = os.getenv("WHISPER_MODEL", "small")
+WHISPER_DEVICE = os.getenv("WHISPER_DEVICE", "cpu")
+WHISPER_COMPUTE_TYPE = os.getenv("WHISPER_COMPUTE_TYPE", "int8")
+WHISPER_DOWNLOAD_ROOT = Path(os.getenv("WHISPER_DOWNLOAD_ROOT", str(BASE_DIR / "models" / "whisper")))
+
+OLLAMA_TIMEOUT_SECONDS = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "120"))
+OLLAMA_HEALTH_TIMEOUT_SECONDS = float(os.getenv("OLLAMA_HEALTH_TIMEOUT_SECONDS", "3"))
+
+# Character budgets bound each extraction response and pairwise merge input.
+NOTES_CHUNK_SIZE = int(os.getenv("NOTES_CHUNK_SIZE", "4000"))
+NOTES_MAX_OUTPUT_CHARS = int(os.getenv("NOTES_MAX_OUTPUT_CHARS", "3000"))
+OLLAMA_CONTEXT_SIZE = int(os.getenv("OLLAMA_CONTEXT_SIZE", "16384"))
+
+# Local, multilingual lecture retrieval. Download weights explicitly before use.
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "intfloat/multilingual-e5-small")
+EMBEDDING_MODEL_PATH = Path(os.getenv("EMBEDDING_MODEL_PATH", str(BASE_DIR / "models" / "embeddings" / "multilingual-e5-small")))
+EMBEDDING_REVISION = os.getenv("EMBEDDING_REVISION", "main")
+EMBEDDING_DEVICE = os.getenv("EMBEDDING_DEVICE", "cpu")
+EMBEDDING_QUERY_PREFIX = os.getenv("EMBEDDING_QUERY_PREFIX", "query: ")
+EMBEDDING_PASSAGE_PREFIX = os.getenv("EMBEDDING_PASSAGE_PREFIX", "passage: ")
+RAG_CHUNK_CHARS = int(os.getenv("RAG_CHUNK_CHARS", "800"))
+RAG_CHUNK_TOKENS = int(os.getenv("RAG_CHUNK_TOKENS", "256"))
+RAG_TOP_K = int(os.getenv("RAG_TOP_K", "4"))
+RAG_MIN_SIMILARITY = float(os.getenv("RAG_MIN_SIMILARITY", "0.72"))
+RAG_CONTEXT_CHARS = int(os.getenv("RAG_CONTEXT_CHARS", "5000"))
+
+QUIZ_QUESTION_COUNT = int(os.getenv("QUIZ_QUESTION_COUNT", "10"))
+FLASHCARD_COUNT = int(os.getenv("FLASHCARD_COUNT", "10"))
+STUDY_GENERATION_BATCH_SIZE = int(os.getenv("STUDY_GENERATION_BATCH_SIZE", "2"))
+STUDY_SOURCE_CHARS = int(os.getenv("STUDY_SOURCE_CHARS", "4000"))
+STUDY_MAX_RESPONSE_CHARS = int(os.getenv("STUDY_MAX_RESPONSE_CHARS", "12000"))
+
+# Optional local TTF/OTF font; otherwise discover a compatible free system font.
+PDF_FONT_PATH = os.getenv("PDF_FONT_PATH", "")
+
+# Locally hosted Redis. Only JSON identifiers/payloads cross the broker.
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://127.0.0.1:6379/1")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_ACKS_LATE = True
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_WORKER_CONCURRENCY = 1
+CELERY_BROKER_CONNECTION_TIMEOUT = 2
+CELERY_BROKER_TRANSPORT_OPTIONS = {"visibility_timeout": 14400, "socket_connect_timeout": 2, "socket_timeout": 2}
+CELERY_TASK_PUBLISH_RETRY = False
+CELERY_TASK_SOFT_TIME_LIMIT = 10500
+CELERY_TASK_TIME_LIMIT = 10800
+CELERY_RESULT_EXPIRES = 86400
+# SQLite is for development: use one worker and short persistence transactions.
+DATABASES["default"].setdefault("OPTIONS", {})["timeout"] = 20
+
+# Bounded, local transcript-based teacher-emphasis classification.
+IMPORTANCE_MIN_CONFIDENCE = float(os.getenv("IMPORTANCE_MIN_CONFIDENCE", "0.75"))
+IMPORTANCE_BATCH_SIZE = int(os.getenv("IMPORTANCE_BATCH_SIZE", "4"))

@@ -1,0 +1,74 @@
+{% load transcript_tags %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ lecture.title }} — ClassNote AI</title>
+<style>
+{% if font_uri %}
+@font-face { font-family: ClassNotePDF; src: url("{{ font_uri }}"); }
+{% endif %}
+@page {
+  size: A4; margin: 20mm 18mm;
+  @bottom-left { content: "ClassNote AI"; font: 9pt "DejaVu Sans", sans-serif; color: #637187; }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 9pt "DejaVu Sans", sans-serif; color: #637187; }
+}
+body { font-family: ClassNotePDF, "Noto Sans Bengali", "DejaVu Sans", sans-serif; font-size: 10.5pt; line-height: 1.7; color: #17283e; overflow-wrap: anywhere; }
+h1 { font-size: 24pt; color: #2454a5; margin: 0 0 4mm; }
+h2 { font-size: 14pt; margin: 8mm 0 3mm; border-bottom: 1px solid #dce4ef; padding-bottom: 2mm; break-after: avoid; }
+h3 { font-size: 11.5pt; margin: 4mm 0 2mm; break-after: avoid; }
+p { margin: 1mm 0 3mm; orphans: 3; widows: 3; }
+.metadata { padding-bottom: 4mm; border-bottom: 2px solid #2454a5; }
+.time { color: #2454a5; font-size: 9pt; }
+.muted { color: #637187; }
+ul { padding-left: 6mm; }
+li { margin-bottom: 2mm; }
+.formula { white-space: pre-wrap; background: #f2f5f9; padding: 3mm; }
+.exam { background: #fff8df; border-left: 3px solid #d39e00; padding: 3mm; margin-bottom: 3mm; }
+.evidence { font-size: 9.5pt; color: #65552a; }
+</style>
+</head>
+<body>
+<h1>ClassNote AI</h1>
+<div class="metadata">
+  <p><strong>Course:</strong> {{ lecture.course.course_code }} — {{ lecture.course.course_name }}</p>
+  <p><strong>Lecture:</strong> {{ lecture.title }}</p>
+  <p><strong>Date:</strong> {{ lecture.lecture_date|date:"Y-m-d" }}</p>
+</div>
+{% if stale %}<p class="muted">The transcript has changed since these saved notes were generated.</p>{% endif %}
+
+<h2>Summary</h2>
+<div>{{ data.summary|default:"Not provided in the transcript."|linebreaks }}</div>
+
+<h2>Topics</h2>
+{% for topic in data.topics %}
+<h3>{{ topic.title }}</h3>
+{% if topic.start_time != None %}<p class="time">[{{ topic.start_time|timestamp }}]</p>{% endif %}
+<div>{{ topic.explanation|linebreaks }}</div>
+{% empty %}<p class="muted">Not provided in the transcript.</p>{% endfor %}
+
+<h2>Key Points</h2>
+<ul>{% for item in data.key_points %}<li>{{ item|linebreaksbr }}</li>{% empty %}<li class="muted">Not provided in the transcript.</li>{% endfor %}</ul>
+
+<h2>Definitions</h2>
+{% for item in data.definitions %}<h3>{{ item.term }}</h3><div>{{ item.definition|linebreaks }}</div>{% empty %}<p class="muted">Not provided in the transcript.</p>{% endfor %}
+
+<h2>Examples</h2>
+<ul>{% for item in data.examples %}<li>{{ item|linebreaksbr }}</li>{% empty %}<li class="muted">Not provided in the transcript.</li>{% endfor %}</ul>
+
+<h2>Formulas</h2>
+{% for item in data.formulas %}<p class="formula">{{ item }}</p>{% empty %}<p class="muted">Not provided in the transcript.</p>{% endfor %}
+
+<h2>Exam Important Topics</h2>
+{% for item in data.exam_important %}
+<div class="exam">
+  <h3>{{ item.text }}</h3>
+  {% if item.start_time != None %}<p class="time">[{{ item.start_time|timestamp }}]</p>{% endif %}
+  <p class="evidence"><strong>Transcript evidence:</strong> {{ item.reason }}</p>
+</div>
+{% empty %}<p class="muted">No explicit exam-emphasis evidence was extracted.</p>{% endfor %}
+
+<h2>Homework</h2>
+<ul>{% for item in data.homework %}<li>{{ item|linebreaksbr }}</li>{% empty %}<li class="muted">Not provided in the transcript.</li>{% endfor %}</ul>
+</body>
+</html>

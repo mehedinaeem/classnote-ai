@@ -1,3 +1,56 @@
 body { color: #17283e; }
 .hero { max-width: 850px; }
 .navbar-brand { text-decoration: none; color: #17283e; }
+
+.auth-card { max-width: 520px; }
+.empty-state { background: #f1f5fb; }
+.username { overflow-wrap: anywhere; max-width: 18rem; }
+.nav-link { padding: 0; }
+
+.recorder-page { max-width: 760px; }
+.microphone-area { background: #edf3ff; color: #254f9b; }
+.microphone-icon { width: 72px; height: 72px; }
+.audio-level { width: min(100%, 280px); height: 24px; }
+.recording-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.recording-controls .btn { min-height: 52px; }
+@media (max-width: 360px) {
+  .recording-controls { grid-template-columns: 1fr; }
+}
+
+.lecture-detail { max-width: 1060px; }
+.lecture-player { top: .75rem; z-index: 1020; }
+.audio-filename { max-width: 55%; }
+.lecture-tab-header { padding: 1rem 1rem 0; border-radius: 1rem 1rem 0 0 !important; }
+.lecture-tabs .nav-link { padding: .9rem .65rem; min-height: 48px; font-weight: 600; white-space: nowrap; color: #53657d; }
+.lecture-tabs .nav-link.active { color: #0d6efd; border-bottom-color: #fff; }
+.lecture-tabs .nav-link:focus-visible { outline: 3px solid #86b7fe; outline-offset: -3px; }
+.lecture-detail [role="tabpanel"] { scroll-margin-top: 150px; }
+.note-section { margin-top: 2.5rem; }
+.note-section-title { font-size: .9rem; font-weight: 750; text-transform: uppercase; letter-spacing: .055em; margin-bottom: 1rem; }
+.summary-section { background: #f0f5ff; }
+.lecture-prose { line-height: 1.85; }
+.lecture-prose p:last-child { margin-bottom: 0; }
+.note-list { padding-left: 1.3rem; line-height: 1.8; }
+.note-list li + li { margin-top: .75rem; }
+.formula-text { background: #f4f6f9; font-family: ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.exam-important-card { background: #fff8df; border: 1px solid #eed997; border-left: 4px solid #d39e00; }
+.exam-important-card blockquote { color: #65552a; line-height: 1.7; }
+.transcript-seek { min-height: 40px; }
+@media (max-width: 575.98px) {
+  .lecture-tabs .nav-link { padding: .85rem .35rem; font-size: .875rem; }
+  .lecture-tab-header { padding: .5rem .5rem 0; }
+  .lecture-player { top: .35rem; }
+  .note-section { margin-top: 2rem; }
+}
+
+.chat-text { white-space: pre-wrap; line-height: 1.8; }
+
+.quiz-option { cursor: pointer; min-height: 52px; }
+.quiz-option:focus-within { outline: 2px solid #86b7fe; outline-offset: 2px; }
+.flashcard-button { display: block; width: 100%; border: 0; padding: 0; text-align: left; background: transparent; perspective: 1000px; }
+.flashcard-inner { display: grid; transform-style: preserve-3d; transition: transform .35s ease; }
+.flashcard-button.is-flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-face { grid-area: 1 / 1; display: flex; align-items: center; min-height: 220px; padding: 1.5rem; border: 1px solid #d8e2f1; border-radius: 1rem; background: #f0f5ff; backface-visibility: hidden; white-space: pre-wrap; line-height: 1.8; }
+.flashcard-back { transform: rotateY(180deg); background: #f0faf4; }
+.flashcard-button:focus-visible { outline: 3px solid #86b7fe; outline-offset: 4px; border-radius: 1rem; }
+@media (prefers-reduced-motion: reduce) { .flashcard-inner { transition: none; } }

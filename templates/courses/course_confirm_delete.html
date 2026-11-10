@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Delete course · ClassNote AI{% endblock %}
+{% block content %}
+<div class="auth-card mx-auto card border-0 shadow-sm"><div class="card-body p-4 p-sm-5">
+  <h1 class="h3">Delete course?</h1>
+  <p class="text-break">You are about to delete <strong>{{ course }}</strong>. This cannot be undone.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">Delete course</button>
+    <a class="btn btn-outline-secondary" href="{% url 'courses:detail' course.pk %}">Cancel</a>
+  </form>
+</div></div>
+{% endblock %}

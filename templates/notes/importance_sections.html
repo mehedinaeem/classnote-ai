@@ -1,0 +1,24 @@
+{% load transcript_tags l10n %}
+<section class="note-section" aria-labelledby="teacher-emphasis-heading">
+  <h3 id="teacher-emphasis-heading" class="note-section-title">Teacher emphasis &amp; assigned work</h3>
+  <p class="small text-secondary">Transcript cues are checked by a local model. Confidence is the model’s estimate, not measured accuracy. Timestamps mark the start of the source segment.</p>
+  {% if importance_candidates %}
+    {% for item in importance_candidates %}
+      {% if item.final_category != "none" and item.final_category != "exam_important" %}
+      {% include "notes/importance_card.html" %}
+      {% endif %}
+    {% endfor %}
+    <details class="border rounded-3 p-3 mt-3">
+      <summary class="small fw-semibold">Detection audit — including excluded candidates</summary>
+      {% for item in importance_candidates %}
+      <article class="border-top pt-3 mt-3 small">
+        <p class="text-break mb-2">{{ item.text }}</p>
+        <p class="mb-1">Rule score: {{ item.keyword_score }} · LLM: {{ item.get_llm_classification_display }} ({{ item.confidence_percent }}%) · Final: <strong>{{ item.get_final_category_display }}</strong></p>
+        <p class="text-break mb-1">{{ item.classification_reason }}</p>
+        <p class="text-break mb-2">{{ item.decision_reason }}</p>
+        <button class="btn btn-outline-secondary btn-sm transcript-seek" type="button" data-seek="{{ item.transcript_segment.start_time|unlocalize }}">Source {{ item.transcript_segment.start_time|timestamp }}</button>
+      </article>
+      {% endfor %}
+    </details>
+  {% else %}<p class="text-secondary">No cue candidates saved. Regenerate notes to run hybrid detection on an existing transcript.</p>{% endif %}
+</section>

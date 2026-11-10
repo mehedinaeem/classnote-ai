@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · ClassNote AI{% endblock %}
+{% block content %}
+<section class="mb-5">
+  <p class="text-primary fw-semibold small text-uppercase">Your study space</p>
+  <h1 class="display-6 fw-bold">Welcome, {{ user.username }}!</h1>
+  <p class="text-secondary">Keep your classroom learning in one place.</p>
+  <div class="d-flex flex-wrap gap-2 mt-4">
+    <a class="btn btn-primary" href="{% url 'lectures:record' %}">Record New Lecture</a>
+    <a class="btn btn-outline-primary" href="{% url 'lectures:create' %}">Upload Lecture</a>
+  </div>
+  <p class="small text-secondary mt-2" id="lecture-coming-soon">Record in your browser or upload an existing audio file.</p>
+</section>
+<div class="row g-4">
+  <section class="col-lg-4" aria-labelledby="courses-title">
+    <div class="card border-0 shadow-sm h-100"><div class="card-body p-4">
+      <h2 class="h5 fw-bold mb-4" id="courses-title">Recent courses</h2>
+
+      <ul class="list-unstyled">
+      {% for course in recent_courses %}
+        <li class="border-bottom py-2 text-break"><a href="{% url 'courses:detail' course.pk %}">{{ course.course_code }} · {{ course.course_name }}</a></li>
+      {% empty %}
+        <li><p class="fw-semibold">No courses yet</p><p class="text-secondary">Create a course to organize your studies.</p></li>
+      {% endfor %}
+      </ul>
+      <a href="{% url 'courses:list' %}">View all courses</a>
+      <a class="btn btn-outline-primary btn-sm ms-2" href="{% url 'courses:create' %}">Create course</a>
+
+    </div></div>
+  </section>
+  <section class="col-lg-8" aria-labelledby="lectures-title">
+    <div class="card border-0 shadow-sm h-100"><div class="card-body p-4">
+      <h2 class="h5 fw-bold mb-4" id="lectures-title">Recent lectures</h2>
+      {% for lecture in recent_lectures %}
+      <div class="border-bottom py-3"><a href="{% url 'lectures:detail' lecture.pk %}">{{ lecture.title }}</a><p class="small text-secondary mb-0">{{ lecture.course.course_code }} · {{ lecture.get_status_display }}</p></div>
+      {% empty %}
+      <div class="empty-state text-center rounded-3 p-4 p-sm-5">
+        <h3 class="h5">Your first lecture starts here</h3>
+        <p class="text-secondary mb-0">No lectures yet. Upload a lecture to see it here.</p>
+      </div>
+      {% endfor %}
+      <a class="d-inline-block mt-3" href="{% url 'lectures:list' %}">View all lectures</a>
+    </div></div>
+  </section>
+</div>
+{% endblock %}

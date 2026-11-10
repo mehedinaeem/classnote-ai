@@ -1,0 +1,42 @@
+{% load transcript_tags l10n %}
+<h2 class="h4 fw-bold">Ask AI</h2>
+<p class="text-secondary">Ask about this lecture. Answers use retrieved transcript passages, with sources you can listen to.</p>
+<div id="chat-history" class="d-grid gap-4 my-4" aria-label="Lecture conversation">
+  {% for message in chat_history %}
+    <article class="chat-turn">
+      <div class="rounded-3 p-3 bg-primary-subtle mb-2">
+        <p class="small fw-bold mb-1">Student</p>
+        <p class="mb-0 text-break chat-text">{{ message.question }}</p>
+      </div>
+      <div class="rounded-3 border p-3 p-sm-4">
+        <p class="small fw-bold text-primary mb-2">AI</p>
+        {% if message.is_stale %}<p class="small text-secondary">From an earlier transcript version. Ask again for updated sources.</p>{% endif %}
+        <p class="text-break chat-text">{{ message.answer }}</p>
+        {% if message.sources %}
+          <h3 class="h6">Sources</h3>
+          {% for source in message.sources %}
+            <div class="border-start border-3 ps-3 mt-3">
+              <button class="btn btn-outline-primary btn-sm transcript-seek" type="button" data-seek="{{ source.timestamp|unlocalize }}">▶ {{ source.timestamp|timestamp }}</button>
+              <blockquote class="small text-secondary text-break mt-2 mb-0">{{ source.excerpt }}</blockquote>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </article>
+  {% empty %}
+    <div id="chat-empty" class="empty-state rounded-4 p-4"><p class="mb-0 text-secondary">Your lecture questions will appear here. Try asking about a concept the teacher explained.</p></div>
+  {% endfor %}
+</div>
+<p class="small text-secondary">Showing the latest 20 questions. Verify answers using the cited lecture audio.</p>
+{% if segments %}
+  <form id="lecture-chat-form" method="post" action="{% url 'ai_chat:ask' lecture.pk %}">
+    {% csrf_token %}
+    <label class="form-label fw-semibold" for="{{ chat_form.question.id_for_label }}">Your question</label>
+    {{ chat_form.question }}
+    <button class="btn btn-primary mt-3" type="submit">Ask AI</button>
+    <p id="chat-status" class="small text-secondary mt-2" role="status">The first question may take longer while the local search index is built.</p>
+    <div id="chat-error" class="alert alert-danger mt-3" role="alert" hidden></div>
+  </form>
+{% else %}
+  <div class="alert alert-info">Transcribe this lecture before asking questions.</div>
+{% endif %}

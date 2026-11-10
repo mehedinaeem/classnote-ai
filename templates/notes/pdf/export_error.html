@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}PDF export unavailable · ClassNote AI{% endblock %}
+{% block content %}
+<div class="card border-0 shadow-sm mx-auto" style="max-width: 720px">
+  <div class="card-body p-4">
+    <h1 class="h4">PDF export unavailable</h1>
+    <p role="alert">{{ error }}</p>
+    <a class="btn btn-outline-primary" href="{% url 'lectures:detail' lecture.pk %}#notes">Back to lecture notes</a>
+  </div>
+</div>
+{% endblock %}

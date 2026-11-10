@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Record lecture · ClassNote AI{% endblock %}
+{% block content %}
+<div class="mx-auto recorder-page">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h1 class="h2 fw-bold mb-0">Record a lecture</h1>
+    <a href="{% url 'lectures:create' %}">Upload an existing file</a>
+  </div>
+  {% if has_courses %}
+  <form id="recording-form" data-upload-url="{% url 'lectures:recording_upload' %}" data-max-bytes="{{ max_upload_bytes }}">
+    {% csrf_token %}
+    <div class="card border-0 shadow-sm"><div class="card-body p-4">
+      <div class="mb-3"><label class="form-label fw-semibold" for="{{ form.course.id_for_label }}">Course</label>{{ form.course }}</div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="{{ form.title.id_for_label }}">Lecture title</label>{{ form.title }}</div>
+      <div id="recorder-message" class="alert alert-info" role="status">Ready when you are. Maximum recording size: {{ max_upload_mb }} MB.</div>
+      <div class="microphone-area text-center rounded-4 p-4 my-4">
+        <svg class="microphone-icon mb-3" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="4" aria-hidden="true"><rect x="23" y="5" width="18" height="34" rx="9"/><path d="M14 28v4a18 18 0 0 0 36 0v-4M32 50v10M22 60h20"/></svg>
+        <div id="recording-status" class="fw-semibold" role="status" aria-live="polite">Ready</div>
+        <div id="recording-timer" class="display-4 fw-bold my-2" aria-label="Recording time">00:00</div>
+        <label class="small text-secondary d-block" for="audio-level">Microphone level</label>
+        <meter id="audio-level" min="0" max="1" value="0" class="audio-level">0</meter>
+      </div>
+      <div class="recording-controls d-grid gap-2">
+        <button id="record-start" class="btn btn-primary btn-lg" type="button" disabled>Start Recording</button>
+        <button id="record-pause" class="btn btn-outline-primary btn-lg" type="button" disabled>Pause</button>
+        <button id="record-resume" class="btn btn-outline-primary btn-lg" type="button" disabled>Resume</button>
+        <button id="record-stop" class="btn btn-outline-danger btn-lg" type="button" disabled>Stop</button>
+      </div>
+      <section id="preview-area" class="mt-4" hidden aria-labelledby="preview-title">
+        <h2 id="preview-title" class="h5">Recording preview</h2>
+        <audio id="recording-preview" class="w-100" controls></audio>
+        <a id="recording-download" class="d-inline-block mt-2" download>Download a backup</a>
+      </section>
+      <button id="record-save" class="btn btn-success btn-lg w-100 mt-4" type="submit" disabled>Save Lecture</button>
+      <p class="small text-secondary mt-3 mb-0">Keep this page open while recording. Audio stays in this browser until you save. Closing or reloading the page discards an unsaved recording. Save first, then select Process lecture on its detail page.</p>
+    </div></div>
+  </form>
+  <noscript><p class="alert alert-warning mt-3">JavaScript is required to record. You can <a href="{% url 'lectures:create' %}">upload an audio file</a> instead.</p></noscript>
+  <script src="{% static 'js/recorder.js' %}" defer></script>
+  {% else %}
+  <div class="card border-0 shadow-sm"><div class="card-body p-5 text-center">
+    <h2 class="h5">Create a course first</h2><p class="text-secondary">Your recording needs a course to belong to.</p>
+    <a class="btn btn-primary" href="{% url 'courses:create' %}">Create course</a>
+  </div></div>
+  {% endif %}
+</div>
+{% endblock %}

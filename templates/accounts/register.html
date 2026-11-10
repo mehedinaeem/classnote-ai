@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Register · ClassNote AI{% endblock %}
+{% block content %}
+<div class="auth-card mx-auto card border-0 shadow-sm">
+  <div class="card-body p-4 p-sm-5">
+    <h1 class="h3 fw-bold">Create your account</h1>
+    <p class="text-secondary mb-4">Make room for a clearer study routine.</p>
+    <form method="post" action="{% url 'register' %}">
+      {% csrf_token %}
+      {% include "accounts/form_fields.html" %}
+      <button class="btn btn-primary w-100" type="submit">Create account</button>
+    </form>
+    <p class="small mt-4 mb-0">Already registered? <a href="{% url 'login' %}">Login</a></p>
+  </div>
+</div>
+{% endblock %}

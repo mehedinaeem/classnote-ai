@@ -1,0 +1,71 @@
+{% load transcript_tags l10n %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+  <div>
+    <p class="small text-primary fw-semibold text-uppercase mb-1">Your study guide</p>
+    <h2 class="h4 fw-bold mb-0">Academic notes</h2>
+  </div>
+  {% if note %}<a class="btn btn-outline-primary" href="{% url 'lectures:export_pdf' lecture.pk %}">Download PDF</a>{% endif %}
+  {% if segments %}
+    <form id="generate-notes-form" method="post" action="{% url 'notes:generate' lecture.pk %}">
+      {% csrf_token %}
+      <button class="btn btn-primary" type="submit" {% if is_processing %}disabled{% endif %}>{% if note %}Regenerate notes{% else %}Generate notes{% endif %}</button>
+    </form>
+  {% endif %}
+</div>
+<p id="note-generation-status" class="small text-secondary" role="status">Generated locally from your transcript. Verify notes against the lecture.</p>
+{% if note_stale %}<div class="alert alert-warning">The transcript has changed since these notes were generated. Regenerate notes to update them.</div>{% endif %}
+{% if lecture.status == "generating_notes" %}<div class="alert alert-info">Notes are being generated. Progress updates automatically.</div>{% endif %}
+{% if note %}
+  {% if lecture.status == "failed" %}<p class="text-secondary">Showing the previous successful notes.</p>{% endif %}
+  {% if note_data.title %}<p class="text-secondary text-break mb-4">{{ note_data.title }}</p>{% endif %}
+  <section class="note-section summary-section rounded-4 p-4">
+    <h3 class="note-section-title">Lecture Summary</h3>
+    <div class="text-break lecture-prose">{{ note_data.summary|default:"Not provided in the transcript."|linebreaks }}</div>
+  </section>
+  <section class="note-section">
+    <h3 class="note-section-title">Topics</h3>
+    {% for topic in note_data.topics %}
+      <article class="topic-card border rounded-3 p-3 p-sm-4 mb-3">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+          <h4 class="h6 fw-bold text-break mb-0">{{ topic.title }}</h4>
+          {% if topic.start_time != None %}<button class="btn btn-outline-primary btn-sm transcript-seek" type="button" data-seek="{{ topic.start_time|unlocalize }}" aria-label="Play from {{ topic.start_time|timestamp }}">Play from {{ topic.start_time|timestamp }}</button>{% endif %}
+        </div>
+        <div class="mt-3 text-break lecture-prose">{{ topic.explanation|linebreaks }}</div>
+      </article>
+    {% empty %}<p class="text-secondary">Not provided in the transcript.</p>{% endfor %}
+  </section>
+  {% include "notes/list_section.html" with heading="Key Points" entries=note_data.key_points %}
+  <section class="note-section">
+    <h3 class="note-section-title">Definitions</h3>
+    {% if note_data.definitions %}
+      <dl class="mb-0">{% for definition in note_data.definitions %}<div class="definition-entry border-start border-3 ps-3 mb-3"><dt class="text-break">{{ definition.term }}</dt><dd class="text-break text-secondary mb-0 mt-1">{{ definition.definition }}</dd></div>{% endfor %}</dl>
+    {% else %}<p class="text-secondary mb-0">Not provided in the transcript.</p>{% endif %}
+  </section>
+  {% include "notes/list_section.html" with heading="Examples" entries=note_data.examples %}
+  {% include "notes/list_section.html" with heading="Formulas" entries=note_data.formulas is_formula=True %}
+  <section class="note-section">
+    <h3 class="note-section-title"><span aria-hidden="true">⭐</span> Exam Important</h3>
+    {% if importance_candidates %}
+      {% for item in exam_candidates %}
+        {% include "notes/importance_card.html" %}
+      {% empty %}<p class="text-secondary">No explicit exam-emphasis evidence was accepted by hybrid detection.</p>{% endfor %}
+    {% else %}
+    {% for item in note_data.exam_important %}
+      <article class="exam-important-card rounded-4 p-4 mb-3">
+        <h4 class="h6 fw-bold text-break">{{ item.text }}</h4>
+        {% if item.start_time != None %}<p class="small text-secondary mb-2">Teacher emphasized this around {{ item.start_time|timestamp }}</p>{% endif %}
+        <blockquote class="small text-break mb-3"><strong>Transcript evidence:</strong> {{ item.reason }}</blockquote>
+        {% if item.start_time != None %}<button class="btn btn-dark btn-sm transcript-seek" type="button" data-seek="{{ item.start_time|unlocalize }}" aria-label="Play from {{ item.start_time|timestamp }}">Play from {{ item.start_time|timestamp }}</button>{% endif %}
+      </article>
+    {% empty %}<p class="text-secondary">No explicit exam-emphasis evidence was extracted.</p>{% endfor %}
+    {% endif %}
+  </section>
+  {% include "notes/importance_sections.html" %}
+  {% include "notes/list_section.html" with heading="Homework / Assignments" entries=note_data.homework %}
+  {% include "notes/list_section.html" with heading="Questions Asked" entries=note_data.questions_asked %}
+  <p class="small text-secondary mt-5 mb-0">Model: {{ note.model_name }} · Updated {{ note.updated_at }}</p>
+{% elif segments %}
+  <div class="empty-state rounded-4 p-4 mt-4"><p class="mb-0 text-secondary">Your transcript is ready. Generate notes to organize its academic content.</p></div>
+{% else %}
+  <div class="empty-state rounded-4 p-4 mt-4"><p class="mb-0 text-secondary">Transcribe this lecture first. Notes require speech transcript segments.</p></div>
+{% endif %}

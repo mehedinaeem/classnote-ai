@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Login · ClassNote AI{% endblock %}
+{% block content %}
+<div class="auth-card mx-auto card border-0 shadow-sm">
+  <div class="card-body p-4 p-sm-5">
+    <h1 class="h3 fw-bold">Welcome back</h1>
+    <p class="text-secondary mb-4">Sign in to your student dashboard.</p>
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      {% include "accounts/form_fields.html" %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <button class="btn btn-primary w-100" type="submit">Login</button>
+    </form>
+    <p class="small mt-4 mb-0">New to ClassNote AI? <a href="{% url 'register' %}">Create an account</a></p>
+  </div>
+</div>
+{% endblock %}
